@@ -4,6 +4,7 @@
 package org.gradle;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ import org.springframework.data.mongodb.MongoDbFactory;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableMap;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBCursor;
@@ -45,7 +47,7 @@ public class Application implements CommandLineRunner {
 	}
 
 	public void run(String... args) throws Exception {
-		objectMapper = new ObjectMapper();
+		setupData();
 		// TODO Auto-generated method stub
 		DB tnr = mongo.getDb("test");
 		DBCollection propertiesColl = tnr.getCollection("Property");
@@ -66,6 +68,17 @@ public class Application implements CommandLineRunner {
 		property = propertyRepo.findByName("file.archive.purge.criteria.days");
 		System.out.println(property.getName() + "=" + property.getValue());
 			
+	}
+	
+	private void setupData() {
+		Property property = Property.builder().name("file.archive.foldersAndCriteria")
+				.value(Arrays.asList(ImmutableMap.of("archiveFolderName", "SUCCESS", "numberOfDaysToArchive" , "1"),
+                        ImmutableMap.of("archiveFolderName", "ERROR", "numberOfDaysToArchive" , "2"))).build();
+		propertyRepo.save(property);
+		
+		property = Property.builder().name("file.archive.purge.criteria.days")
+				.value("7").build();
+		propertyRepo.save(property);
 	}
 
 }
